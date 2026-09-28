@@ -19,6 +19,40 @@ var ArchiveManagerUI = {
     this.prompts = Cc["@mozilla.org/embedcomp/prompt-service;1"]
                      .getService(Ci.nsIPromptService);
     document.getElementById("am-tree").view = this._makeView();
+
+    /* Auto-open path: when the window was opened by DownloadWatcher with a
+     * file argument, load it once the window is fully constructed. */
+    var initial = this._initialArchivePath();
+    if (initial) {
+      var self = this;
+      window.setTimeout(function () { self.loadArchive(initial); }, 0);
+    }
+  },
+
+  /* The download watcher passes the target file either as a wrapped object
+   * {archivePath} (openDialog), or as an nsISupportsString inside a
+   * window.arguments array (nsIWindowWatcher). Accept both, plus a plain
+   * string. */
+  _initialArchivePath: function _initialArchivePath() {
+    var args = window.arguments;
+    if (!args || !args.length) return null;
+    for (var i = 0; i < args.length; i++) {
+      var a = args[i];
+      try {
+        if (typeof a === "string" && a) return a;
+        if (!a || typeof a !== "object") continue;
+        if (typeof a.archivePath === "string" && a.archivePath)
+          return a.archivePath;
+        if (typeof a.data === "string" && a.data) return a.data; // nsISupportsString
+        if (a.wrappedJSObject) {
+          var w = a.wrappedJSObject;
+          if (typeof w === "string" && w) return w;
+          if (w && typeof w.archivePath === "string" && w.archivePath)
+            return w.archivePath;
+        }
+      } catch (e) {}
+    }
+    return null;
   },
 
   setStatus: function setStatus(msg) {

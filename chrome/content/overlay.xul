@@ -9,16 +9,47 @@
               label="&archiveManager.menu.label;"
               accesskey="&archiveManager.menu.accesskey;"
               oncommand="ArchiveManagerOverlay.openWindow();"/>
+    <menuitem id="archive-manager-autoopen"
+              type="checkbox"
+              label="&archiveManager.autoOpen;"
+              tooltiptext="&archiveManager.autoOpenTip;"
+              oncommand="ArchiveManagerOverlay.setAutoOpen(this.checked);"/>
   </menupopup>
 
   <script type="application/x-javascript"><![CDATA[
     var ArchiveManagerOverlay = {
+      AUTO_OPEN_PREF: "extensions.archive-manager.autoOpen",
+
       openWindow: function () {
         window.openDialog(
           "chrome://archive-manager/content/archive-manager.xul",
           "archive-manager",
           "chrome,centerscreen,resizable=yes,width=760,height=480");
+      },
+
+      _prefBranch: function () {
+        var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+                    .getService(Components.interfaces.nsIPrefService);
+        return prefs.getBranch("extensions.archive-manager.");
+      },
+
+      autoOpenEnabled: function () {
+        try { return this._prefBranch().getBoolPref("autoOpen"); }
+        catch (e) { return true; } // unset pref => auto-open enabled
+      },
+
+      setAutoOpen: function (enabled) {
+        try { this._prefBranch().setBoolPref("autoOpen", !!enabled); }
+        catch (e) {}
+      },
+
+      init: function () {
+        document.getElementById("archive-manager-autoopen")
+                .setAttribute("checked", this.autoOpenEnabled());
       }
     };
+    window.addEventListener("load", function () {
+      ArchiveManagerOverlay.init();
+    }, false);
   ]]></script>
 </overlay>

@@ -23,6 +23,9 @@ This is **not** a WebExtension. It uses XPCOM, `chrome.manifest`, an
   (file/dir/symlink/hardlink). Unsafe entries (path traversal, etc.) are
   flagged ⚠ in red and are never extracted.
 - **Extract all** or **Extract selected** to a chosen folder.
+- **Auto-open on download**: when a `.zip`, `.rar`, `.7z`, `.tar`, `.tar.gz`
+  or `.tar.xz` download completes, the Archive Manager opens (or focuses,
+  if already open) with that file already loaded.
 - **Delete-after-extract** is opt-in only: a checkbox (unchecked by default)
   plus a *separate* confirmation dialog *after* extraction completes. The
   archive is never deleted silently, automatically, or when any entry failed.
@@ -57,6 +60,42 @@ containing the absolute path to this repo checkout.
 6. If deletion was requested, a *second* confirmation explicitly asks before
    the archive is permanently removed.
 
+## Auto-open on download completion
+
+The extension watches the platform download manager and opens the Archive
+Manager — loading the finished file into the viewer — when a download
+completes whose name ends in a supported archive extension.
+
+**How it hooks in.** On UXP there are no WebExtension APIs (`browser.*`,
+`downloads.*`), so bootstrap.js installs `DownloadWatcher.jsm`, which
+registers an `nsIDownloadProgressListener` with the classic XPCOM download
+manager (`@mozilla.org/download-manager;1`) and, on UXP applications that
+ship jsdownloads (e.g. later Pale Moon / Interlink), a `Downloads.jsm`
+`DownloadList` view as well. Only `nsIDownloadManager::DOWNLOAD_FINISHED`
+(`succeeded` on the jsdownloads side) dispatches — in-progress, failed,
+canceled and paused downloads are ignored, and the path-keyed deduper
+collapses duplicate notifications (including a download surfacing through
+both backends at once). This covers every download manager UXP apps ship;
+no WebExtension APIs are required.
+
+**What opens.** `.zip`, `.rar`, `.7z`, `.tar`, `.tar.gz`/`.tgz`,
+`.tar.xz`/`.txz` (case-insensitive, query/fragment stripped, compound
+extensions matched longest-first). Bare `.gz`/`.xz` are single-stream
+compressors, not archives, and are deliberately not auto-opened. Files
+that are missing, empty or unreadable are skipped silently. The file is
+loaded through the same `ArchiveService.open()` as the manual flow, so
+all path-safety, listing and confirmation behavior is identical — nothing
+is extracted or deleted automatically.
+
+**If a manager window is already open** it is focused and the new archive
+is loaded into it; otherwise a new window opens (or a window-watcher
+window when no browser window exists to parent a dialog on).
+
+**Disabling it.** Uncheck *Tools → Archive Manager → Auto-open downloaded
+archives*, or set `extensions.archive-manager.autoOpen` to `false` in
+`about:config`. Default: enabled. The preference is read when each
+download completes, so it applies to the very next download.
+
 ## What a UXP extension can and cannot do
 
 UXP runs classic XPCOM extensions with full chrome privileges — essentially
@@ -68,6 +107,7 @@ everything the browser itself can do. The relevant surface:
 | Process execution | `nsIProcess` (blocking; **no stdout capture**) | unrar / 7za / xz helpers; output captured via shell redirection to a temp file |
 | Native libraries | **js-ctypes** | `liblzma` (`lzma_stream_buffer_decode`) for .xz; `libc` `symlink()`/`link()` for in-root link recreation |
 | UI | XUL overlay + XUL window, `nsIPromptService`, `nsIFilePicker`, `nsITreeView` | whole UI |
+| Download events | `nsIDownloadManager` + `nsIDownloadProgressListener`; `Downloads.jsm` view when present | auto-open on completed archive downloads |
 | WebExtension APIs | **absent** — no `browser.*`, no `downloads`, no `runtime` | nothing |
 
 Consequences:
@@ -163,6 +203,8 @@ chrome/content/archive-manager.xul/js   XUL window + tree view + consent flow
 chrome/content/overlay.xul              Tools-menu entry
 modules/
   ArchiveService.jsm   orchestrator: detect → open → extract → (confirm) delete
+  DownloadWatcher.jsm  download-manager listeners + window open/focus (XPCOM)
+  DownloadFilter.jsm   *pure* auto-open decision logic (extension/state/dedup)
   SafePath.jsm         *pure* path sanitizer + link/zip-bomb checks
   ZipFormat.jsm        *pure* ZIP parser/decompressor
   TarFormat.jsm        *pure* ustar/pax/GNU tar parser
@@ -198,3 +240,6 @@ extension imports — and covers:
 - `TarFormat` ustar, pax long names, symlink/hardlink records, escaping links
 - `GzipFormat` unwrap
 - `HelperParsers` against captured `unrar lt` and `7z l -slt` output
+- `DownloadFilter` extension matching (incl. compound `.tar.gz`/`.tar.xz`
+  and aliases), completion-state filtering, disabled-pref, missing/empty
+  file rejection, duplicate-notification dedup, and dispatch decisions

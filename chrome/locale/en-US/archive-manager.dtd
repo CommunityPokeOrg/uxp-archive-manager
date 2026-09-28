@@ -1,6 +1,8 @@
 <!ENTITY archiveManager.title            "Archive Manager">
 <!ENTITY archiveManager.menu.label       "Archive Manager">
 <!ENTITY archiveManager.menu.accesskey   "A">
+<!ENTITY archiveManager.autoOpen         "Auto-open downloaded archives">
+<!ENTITY archiveManager.autoOpenTip      "Open Archive Manager with each completed .zip/.rar/.7z/.tar/.tar.gz/.tar.xz download">
 <!ENTITY archiveManager.open             "Open archive…">
 <!ENTITY archiveManager.noArchive        "No archive loaded">
 <!ENTITY archiveManager.col.name         "Name">

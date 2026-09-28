@@ -4,6 +4,7 @@
 <!DOCTYPE window SYSTEM "chrome://archive-manager/locale/archive-manager.dtd">
 <window id="archive-manager-window"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        windowtype="ArchiveManager"
         title="&archiveManager.title;"
         width="780" height="520"
         persist="width height screenX screenY"
