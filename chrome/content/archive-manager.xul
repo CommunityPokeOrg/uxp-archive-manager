@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://archive-manager/skin/archive-manager.css" type="text/css"?>
+<!DOCTYPE window SYSTEM "chrome://archive-manager/locale/archive-manager.dtd">
+<window id="archive-manager-window"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        title="&archiveManager.title;"
+        width="780" height="520"
+        persist="width height screenX screenY"
+        onload="ArchiveManagerUI.init();">
+
+  <script type="application/x-javascript"
+          src="chrome://archive-manager/content/archive-manager.js"/>
+
+  <vbox flex="1">
+
+    <hbox id="am-toolbar" align="center">
+      <button id="am-open" label="&archiveManager.open;" oncommand="ArchiveManagerUI.openArchive();"/>
+      <label id="am-archive-label" flex="1" crop="end" value="&archiveManager.noArchive;"/>
+      <label id="am-backend" crop="start"/>
+    </hbox>
+
+    <tree id="am-tree" flex="1" seltype="multiple" enableColumnDrag="false">
+      <treecols>
+        <treecol id="am-col-name"   label="&archiveManager.col.name;"   flex="4" persist="width"/>
+        <splitter class="tree-splitter"/>
+        <treecol id="am-col-size"   label="&archiveManager.col.size;"   flex="1" persist="width"/>
+        <splitter class="tree-splitter"/>
+        <treecol id="am-col-packed" label="&archiveManager.col.packed;" flex="1" persist="width"/>
+        <splitter class="tree-splitter"/>
+        <treecol id="am-col-method" label="&archiveManager.col.method;" flex="1" persist="width"/>
+        <splitter class="tree-splitter"/>
+        <treecol id="am-col-type"   label="&archiveManager.col.type;"   flex="1" persist="width"/>
+      </treecols>
+      <treechildren/>
+    </tree>
+
+    <hbox align="center">
+      <label value="&archiveManager.dest;" control="am-dest"/>
+      <textbox id="am-dest" flex="1" readonly="true"/>
+      <button id="am-browse" label="&archiveManager.browse;" oncommand="ArchiveManagerUI.pickDest();"/>
+    </hbox>
+
+    <hbox align="center">
+      <checkbox id="am-delete"
+                label="&archiveManager.deleteAfter;"
+                tooltiptext="&archiveManager.deleteAfterTip;"/>
+      <spacer flex="1"/>
+      <button id="am-extract-sel" label="&archiveManager.extractSel;" disabled="true"
+              oncommand="ArchiveManagerUI.extract(false);"/>
+      <button id="am-extract-all" label="&archiveManager.extractAll;" disabled="true"
+              oncommand="ArchiveManagerUI.extract(true);"/>
+    </hbox>
+
+    <hbox align="center">
+      <progressmeter id="am-progress" mode="determined" value="0" collapsed="true" flex="1"/>
+      <label id="am-status" flex="2" crop="end"/>
+    </hbox>
+
+  </vbox>
+</window>

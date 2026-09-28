@@ -1,0 +1,16 @@
+<!ENTITY archiveManager.title            "Archive Manager">
+<!ENTITY archiveManager.menu.label       "Archive Manager">
+<!ENTITY archiveManager.menu.accesskey   "A">
+<!ENTITY archiveManager.open             "Open archive…">
+<!ENTITY archiveManager.noArchive        "No archive loaded">
+<!ENTITY archiveManager.col.name         "Name">
+<!ENTITY archiveManager.col.size         "Size">
+<!ENTITY archiveManager.col.packed       "Packed">
+<!ENTITY archiveManager.col.method       "Method">
+<!ENTITY archiveManager.col.type         "Type">
+<!ENTITY archiveManager.dest             "Destination:">
+<!ENTITY archiveManager.browse           "Browse…">
+<!ENTITY archiveManager.deleteAfter      "Delete archive after successful extraction">
+<!ENTITY archiveManager.deleteAfterTip   "Opt-in: permanently removes the source archive — you will be asked to confirm again">
+<!ENTITY archiveManager.extractSel       "Extract selected">
+<!ENTITY archiveManager.extractAll       "Extract all">

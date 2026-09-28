@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://archive-manager/skin/overlay.css" type="text/css"?>
+<!DOCTYPE overlay SYSTEM "chrome://archive-manager/locale/archive-manager.dtd">
+<overlay id="archive-manager-overlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <menupopup id="menu_ToolsPopup">
+    <menuitem id="archive-manager-open"
+              label="&archiveManager.menu.label;"
+              accesskey="&archiveManager.menu.accesskey;"
+              oncommand="ArchiveManagerOverlay.openWindow();"/>
+  </menupopup>
+
+  <script type="application/x-javascript"><![CDATA[
+    var ArchiveManagerOverlay = {
+      openWindow: function () {
+        window.openDialog(
+          "chrome://archive-manager/content/archive-manager.xul",
+          "archive-manager",
+          "chrome,centerscreen,resizable=yes,width=760,height=480");
+      }
+    };
+  ]]></script>
+</overlay>
